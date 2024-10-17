@@ -12,6 +12,7 @@ type Opcode byte
 
 const (
 	OpConstant Opcode = iota
+	OpAdd
 )
 
 type Definition struct {
@@ -20,7 +21,9 @@ type Definition struct {
 }
 
 var definitions = map[Opcode]*Definition{
+	// operand width of 2 is the index of the opconstant in the constant pool
 	OpConstant: {"OpConstant", []int{2}},
+	OpAdd:      {"OpAdd", []int{}},
 }
 
 func Lookup(op byte) (*Definition, error) {
@@ -86,10 +89,12 @@ func (ins Instructions) fmtInstruction(def *Definition, operands []int) string {
 		return fmt.Sprintf("ERROR: operand len %d does not match defined %d\n", len(operands), operandCount)
 	}
 	switch operandCount {
+	case 0:
+		return fmt.Sprintf(def.Name)
 	case 1:
 		return fmt.Sprintf("%s %d", def.Name, operands[0])
 	}
-	return fmt.Sprintf("ERROR: unhandled operandCount for %s\n", def.Name)
+	return fmt.Sprintf("ERROR: unhandled operandCount for %s\n. Received operand count of %d", def.Name, operandCount)
 }
 
 func ReadOperands(def *Definition, ins Instructions) ([]int, int) {
