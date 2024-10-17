@@ -62,6 +62,8 @@ func (c *Compiler) addInstruction(ins []byte) int {
 	return posNewInstruction
 }
 
+// Returns the index to the constant in a constant pool to be
+// used later
 func (c *Compiler) addConstant(obj object.Object) int {
 	c.constants = append(c.constants, obj)
 	return len(c.constants) - 1
