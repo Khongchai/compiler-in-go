@@ -37,6 +37,13 @@ func (vm *VM) StackTop() object.Object {
 	return vm.stack[vm.sp-1]
 }
 
+// We only pop elements off the stack by decrementing the stack pointer.
+// The current element is always at vm.sp - 1, so vm.sp should still have the last
+// popped item.
+func (vm *VM) LastPoppedStackElem() object.Object {
+	return vm.stack[vm.sp]
+}
+
 // The main fetch-decode-execute loop
 func (vm *VM) Run() error {
 	// Fetch
@@ -60,6 +67,8 @@ func (vm *VM) Run() error {
 			rightValue := right.(*object.Integer).Value
 			result := leftValue + rightValue
 			vm.push(&object.Integer{Value: result})
+		case code.OpPop:
+			vm.pop()
 		}
 	}
 
