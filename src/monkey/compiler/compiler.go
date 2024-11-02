@@ -72,13 +72,37 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 
+		// We want to check for the pop opcode in the last instruction
+		// and remove it because we want to be able to retain the return value
+		// of if/else expression so that we can use it like this too:
+		// `let a = if (true) { 10; } else { ... }`
+
 		if c.lastInstructionIsPop() {
 			c.removeLastPop()
 		}
 
-		// Replace the bogus value with a real one.
-		afterConsequencePos := len(c.instructions)
-		c.changeOperand(jumpNotTruthyPos, afterConsequencePos)
+		if node.Alternative == nil {
+			afterConsequencePos := len(c.instructions)
+			c.changeOperand(jumpNotTruthyPos, afterConsequencePos)
+		} else {
+			// If there is an else branch, emit a jump to the specified location
+			jumpPos := c.emit(code.OpJump, 9999)
+
+			afterConsequencePos := len(c.instructions)
+			c.changeOperand(jumpNotTruthyPos, afterConsequencePos)
+
+			err := c.Compile(node.Alternative)
+			if err != nil {
+				return err
+			}
+
+			if c.lastInstructionIsPop() {
+				c.removeLastPop()
+			}
+
+			afterAlternativePos := len(c.instructions)
+			c.changeOperand(jumpPos, afterAlternativePos)
+		}
 	case *ast.InfixExpression:
 		// Swap order
 		if node.Operator == "<" {
