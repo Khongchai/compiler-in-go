@@ -68,6 +68,21 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return nil
 			}
+		case code.OpJumpNotTruthy:
+			pos := int(code.ReadUint16(vm.instructions[ip+1:]))
+			// increment the instruction pointer to skip the operand.
+			// this is us defaulting immediately to the truthy case.
+			// We check whether we need to skip to the alternative branch
+			// down below
+			ip += 2
+
+			condition := vm.pop()
+			if !isTruthy(condition) {
+				ip = pos - 1
+			}
+		case code.OpJump:
+			pos := int(code.ReadUint16(vm.instructions[ip+1:]))
+			ip = pos - 1
 		case code.OpTrue:
 			err := vm.push(True)
 			if err != nil {
@@ -119,6 +134,16 @@ func (vm *VM) executeBangOperator() error {
 		return vm.push(True)
 	default:
 		return vm.push(False)
+	}
+}
+
+func isTruthy(obj object.Object) bool {
+	switch obj := obj.(type) {
+	case *object.Boolean:
+		return obj.Value
+
+	default:
+		return true
 	}
 }
 
