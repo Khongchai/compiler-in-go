@@ -104,6 +104,11 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
+		case code.OpNull:
+			err := vm.push(Null)
+			if err != nil {
+				return err
+			}
 		case code.OpMinus:
 			err := vm.executeMinusOperator()
 			if err != nil {
