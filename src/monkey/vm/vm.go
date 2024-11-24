@@ -37,6 +37,12 @@ func New(bytecode *compiler.Bytecode) *VM {
 	}
 }
 
+func NewWithGlobalsStore(bytecode *compiler.Bytecode, s []object.Object) *VM {
+	vm := New(bytecode)
+	vm.globals = s
+	return vm
+}
+
 func (vm *VM) StackTop() object.Object {
 	// no elements allocated yet
 	if vm.sp == 0 {
