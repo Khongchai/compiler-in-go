@@ -168,6 +168,9 @@ func (c *Compiler) Compile(node ast.Node) error {
 		default:
 			return fmt.Errorf("unknown operator %s", node.Operator)
 		}
+	case *ast.StringLiteral:
+		s := &object.String{Value: node.Value}
+		c.emit(code.OpConstant, c.addConstant(s))
 	case *ast.IntegerLiteral:
 		integer := &object.Integer{Value: node.Value}
 		c.emit(code.OpConstant, c.addConstant(integer))
