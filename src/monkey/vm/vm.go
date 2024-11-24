@@ -137,9 +137,34 @@ func (vm *VM) Run() error {
 			globalIndex := code.ReadUint16(vm.instructions[ip+1:])
 			ip += 2
 			vm.globals[globalIndex] = vm.pop()
+		case code.OpArray:
+			numElements := int(code.ReadUint16(vm.instructions[ip+1:]))
+			ip += 2
+
+			// sp-numElements because the array opcode is the last one, after
+			// all of its elements.
+			array := vm.buildArray(vm.sp-numElements, vm.sp)
+			// removes destructured array members from the stack
+			// by resetting the position.
+			vm.sp = vm.sp - numElements
+
+			err := vm.push(array)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
+}
+
+func (vm *VM) buildArray(startIndex, endIndex int) object.Object {
+	elements := make([]object.Object, endIndex-startIndex)
+
+	for i := startIndex; i < endIndex; i++ {
+		elements[i-startIndex] = vm.stack[i]
+	}
+
+	return &object.Array{Elements: elements}
 }
 
 func (vm *VM) executeMinusOperator() error {

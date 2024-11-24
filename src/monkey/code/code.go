@@ -29,6 +29,7 @@ const (
 	OpJump
 	OpSetGlobal
 	OpGetGlobal
+	OpArray
 )
 
 type Definition struct {
@@ -57,6 +58,7 @@ var definitions = map[Opcode]*Definition{
 	// 2-byte variable binding. 16 bits -- 65536 numbers total.
 	OpGetGlobal: {"OpGetGlobal", []int{2}},
 	OpSetGlobal: {"OpSetGlobal", []int{2}},
+	OpArray:     {"OpArray", []int{2}},
 }
 
 func Lookup(op byte) (*Definition, error) {
