@@ -67,6 +67,8 @@ func (c *Compiler) Compile(node ast.Node) error {
 		for k := range node.Pairs {
 			keys = append(keys, k)
 		}
+		// This is to ensure the hashkey ordering is always the same
+		// for all compilations. Easier for both debuggin and optimizations, if any.
 		sort.Slice(keys, func(i, j int) bool {
 			return keys[i].String() < keys[j].String()
 		})

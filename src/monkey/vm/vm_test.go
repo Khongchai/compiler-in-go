@@ -93,6 +93,8 @@ func TestHashLiterals(t *testing.T) {
 			"{}", map[object.HashKey]int64{},
 		},
 		{
+			// Notice, mostly test how it's store, not what
+			// (we're asserting what the keys and values are built from)
 			"{1: 2, 2: 3}",
 			map[object.HashKey]int64{
 				(&object.Integer{Value: 1}).HashKey(): 2,
