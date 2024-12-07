@@ -32,6 +32,9 @@ const (
 	OpArray
 	OpHash
 	OpIndex
+	OpCall
+	OpReturnValue
+	OpReturn
 )
 
 type Definition struct {
@@ -63,8 +66,11 @@ var definitions = map[Opcode]*Definition{
 	OpArray:     {"OpArray", []int{2}},
 	// Operand specifies the number of keys and values
 	// sitting on the stack.
-	OpHash:  {"OpHash", []int{2}},
-	OpIndex: {"OpIndex", []int{}},
+	OpHash:        {"OpHash", []int{2}},
+	OpIndex:       {"OpIndex", []int{}},
+	OpCall:        {"OpCall", []int{}},
+	OpReturnValue: {"OpReturnvalue", []int{}},
+	OpReturn:      {"OpReturn", []int{}},
 }
 
 func Lookup(op byte) (*Definition, error) {
