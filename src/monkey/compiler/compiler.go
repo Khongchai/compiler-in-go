@@ -73,6 +73,12 @@ func (c *Compiler) Compile(node ast.Node) error {
 			}
 		}
 		c.emit(code.OpArray, len(node.Elements))
+	case *ast.CallExpression:
+		err := c.Compile(node.Function)
+		if err != nil {
+			return err
+		}
+		c.emit(code.OpCall)
 	case *ast.FunctionLiteral:
 		c.enterScope()
 		err := c.Compile(node.Body)
@@ -296,6 +302,8 @@ func (c *Compiler) replaceLastPopWithReturn() {
 func (c *Compiler) leaveScope() code.Instructions {
 	instructions := c.currentInstructions()
 
+	// removes the instructions belonging to the function body out
+	// of the current scope
 	c.scopes = c.scopes[:len(c.scopes)-1]
 	c.scopeIndex--
 
