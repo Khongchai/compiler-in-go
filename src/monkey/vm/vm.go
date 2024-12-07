@@ -92,6 +92,14 @@ func (vm *VM) Run() error {
 			}
 			frame := NewFrame(fn)
 			vm.pushFrame(frame)
+		case code.OpReturn:
+			vm.popFrame()
+			vm.pop()
+
+			err := vm.push(Null)
+			if err != nil {
+				return err
+			}
 		case code.OpReturnValue:
 			returnValue := vm.pop()
 
