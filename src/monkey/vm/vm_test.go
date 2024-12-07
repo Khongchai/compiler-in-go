@@ -29,6 +29,20 @@ func TestConditionals(t *testing.T) {
 
 }
 
+func TestCallingFunctionsWithoutArguments(t *testing.T) {
+	tests := []vmTestCase{
+		{
+			input: `
+				let fivePlusTen = fn() { 5 + 10; };
+				fivePlusTen()
+			`,
+			expected: 15,
+		},
+	}
+
+	runVmTests(t, tests)
+}
+
 func TestArrayLiterals(t *testing.T) {
 	tests := []vmTestCase{
 		{"[]", []int{}},
