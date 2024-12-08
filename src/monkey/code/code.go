@@ -70,7 +70,7 @@ var definitions = map[Opcode]*Definition{
 	// sitting on the stack.
 	OpHash:        {"OpHash", []int{2}},
 	OpIndex:       {"OpIndex", []int{}},
-	OpCall:        {"OpCall", []int{}},
+	OpCall:        {"OpCall", []int{1}},
 	OpReturnValue: {"OpReturnvalue", []int{}},
 	OpReturn:      {"OpReturn", []int{}},
 	OpGetLocal:    {"OpGetLocal", []int{1}},
