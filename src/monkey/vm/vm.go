@@ -86,15 +86,14 @@ func (vm *VM) Run() error {
 		// Decode
 		switch op {
 		case code.OpCall:
-			vm.currentFrame().ip += 1
-			fn, ok := vm.stack[vm.sp-1].(*object.CompiledFunction)
-			if !ok {
-				return fmt.Errorf("calling non-function")
+			numArgs := code.ReadUint8(ins[ip+1:])
+			vm.currentFrame().ip += 1 // op call operand
+
+			err := vm.callFunction(int(numArgs))
+			if err != nil {
+				return err
 			}
-			// use the stack pointer as the new base pointer
-			frame := NewFrame(fn, vm.sp)
-			vm.pushFrame(frame)
-			vm.sp = frame.basePointer + fn.NumLocals
+
 		case code.OpReturn:
 			frame := vm.popFrame()
 			vm.sp = frame.basePointer - 1
@@ -241,6 +240,25 @@ func (vm *VM) Run() error {
 			}
 		}
 	}
+	return nil
+}
+
+func (vm *VM) callFunction(numArgs int) error {
+	fn, ok := vm.stack[vm.sp-1-int(numArgs)].(*object.CompiledFunction)
+	if !ok {
+		return fmt.Errorf("calling non-function")
+	}
+
+	if numArgs != fn.NumParameters {
+		return fmt.Errorf("wrong number of arguments: want=%d, got=%d",
+			fn.NumParameters, numArgs)
+	}
+
+	// use the stack pointer as the new base pointer
+	frame := NewFrame(fn, vm.sp-numArgs)
+
+	vm.pushFrame(frame)
+	vm.sp = frame.basePointer + fn.NumLocals
 	return nil
 }
 
