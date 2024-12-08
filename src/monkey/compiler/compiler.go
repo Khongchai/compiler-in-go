@@ -89,6 +89,12 @@ func (c *Compiler) Compile(node ast.Node) error {
 		c.emit(code.OpCall, len(node.Arguments))
 	case *ast.FunctionLiteral:
 		c.enterScope()
+
+		// treat parameters the same as local variables
+		for _, p := range node.Parameters {
+			c.symbolTable.Define(p.Value)
+		}
+
 		err := c.Compile(node.Body)
 		if err != nil {
 			return nil
