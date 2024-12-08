@@ -280,7 +280,7 @@ func (vm *VM) executeCall(numArgs int) error {
 	case *object.Builtin:
 		return vm.callBuiltin(callee, numArgs)
 	default:
-		return fmt.Errorf("Calling non-function and non-builtin")
+		return fmt.Errorf("calling non-function and non-builtin")
 
 	}
 }
@@ -554,11 +554,11 @@ func (vm *VM) pushClosure(constIndex int, numFree int) error {
 	// This works because symbols for the free variables are loaded directly before
 	// the opcode for this closure (see the compiler for more detail)
 	for i := 0; i < numFree; i++ {
-		free[i] = vm.stack[vm.sp-numFree+i]
+		free[i] = vm.stack[(vm.sp-numFree)+i]
 	}
 	// Once free is loaded, remove it from the stack as it will be combined with the closure object below.
 	vm.sp = vm.sp - numFree
 
-	closure := &object.Closure{Fn: function}
+	closure := &object.Closure{Fn: function, Free: free}
 	return vm.push(closure)
 }
