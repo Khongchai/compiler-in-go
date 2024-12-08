@@ -37,6 +37,35 @@ func TestDefine(t *testing.T) {
 	expect("f", f)
 }
 
+func TestDefineAndResolveFunctionName(t *testing.T) {
+	global := NewSymbolTable()
+	global.DefineFunctionName("a")
+	expected := Symbol{Name: "a", Scope: FunctionScope, Index: 0}
+	result, ok := global.Resolve(expected.Name)
+	if !ok {
+		t.Fatalf("function name %s not resolvable", expected.Name)
+	}
+	if result != expected {
+		t.Errorf("expected %s to resolve to %+v, got=%+v",
+			expected.Name, expected, result)
+	}
+}
+
+func TestShadowingFunctionName(t *testing.T) {
+	global := NewSymbolTable()
+	global.DefineFunctionName("a")
+	global.Define("a")
+	expected := Symbol{Name: "a", Scope: GlobalScope, Index: 0}
+	result, ok := global.Resolve(expected.Name)
+	if !ok {
+		t.Fatalf("function name %s not resolvable", expected.Name)
+	}
+	if result != expected {
+		t.Errorf("expected %s to resolve to %+v, got=%+v",
+			expected.Name, expected, result)
+	}
+}
+
 func TestDefineResolveBuiltins(t *testing.T) {
 	global := NewSymbolTable()
 	firstLocal := NewEnclosedSymbolTable(global)

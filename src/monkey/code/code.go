@@ -40,6 +40,7 @@ const (
 	OpGetBuiltin
 	OpClosure
 	OpGetFree
+	OpCurrentClosure
 )
 
 type Definition struct {
@@ -81,8 +82,9 @@ var definitions = map[Opcode]*Definition{
 	OpGetBuiltin:  {"OpGetBuiltin", []int{1}},
 	// Two operands, one for the address of the function in the constant pool to be turned into a closure.
 	// The second one is the number of free variables to be wrapped within this closure.
-	OpClosure: {"OpClosure", []int{2, 1}},
-	OpGetFree: {"OpGetFree", []int{1}},
+	OpClosure:        {"OpClosure", []int{2, 1}},
+	OpGetFree:        {"OpGetFree", []int{1}},
+	OpCurrentClosure: {"OpCurrentClosure", []int{}},
 }
 
 func Lookup(op byte) (*Definition, error) {
