@@ -97,11 +97,19 @@ func (vm *VM) Run() error {
 
 		case code.OpClosure:
 			constIndex := code.ReadUint16(ins[ip+1:])
-			// TODO
-			_ = code.ReadUint8(ins[ip+3:])
+			numFree := code.ReadUint8(ins[ip+3:])
 			vm.currentFrame().ip += 1
 
-			err := vm.pushClosure(int(constIndex))
+			err := vm.pushClosure(int(constIndex), int(numFree))
+			if err != nil {
+				return err
+			}
+		case code.OpGetFree:
+			freeIndex := code.ReadUint8(ins[ip+1:])
+			vm.currentFrame().ip += 1
+
+			currentClosure := vm.currentFrame().cl
+			err := vm.push(currentClosure.Free[freeIndex])
 			if err != nil {
 				return err
 			}
@@ -535,12 +543,22 @@ func (vm *VM) pop() object.Object {
 	return o
 }
 
-func (vm *VM) pushClosure(constIndex int) error {
+func (vm *VM) pushClosure(constIndex int, numFree int) error {
 	constant := vm.constants[constIndex]
 	function, ok := constant.(*object.CompiledFunction)
 	if !ok {
 		return fmt.Errorf("not a function: %+v", constant)
 	}
+	free := make([]object.Object, numFree)
+
+	// This works because symbols for the free variables are loaded directly before
+	// the opcode for this closure (see the compiler for more detail)
+	for i := 0; i < numFree; i++ {
+		free[i] = vm.stack[vm.sp-numFree+i]
+	}
+	// Once free is loaded, remove it from the stack as it will be combined with the closure object below.
+	vm.sp = vm.sp - numFree
+
 	closure := &object.Closure{Fn: function}
 	return vm.push(closure)
 }

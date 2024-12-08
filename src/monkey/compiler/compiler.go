@@ -114,9 +114,13 @@ func (c *Compiler) Compile(node ast.Node) error {
 			c.emit(code.OpReturn)
 		}
 
+		freeSymbols := c.symbolTable.FreeSymbols
 		numLocals := c.symbolTable.numDefinitions
-
 		instructions := c.leaveScope()
+
+		for _, s := range freeSymbols {
+			c.loadSymbol(s)
+		}
 
 		compiledFn := &object.CompiledFunction{
 			Instructions:  instructions,
@@ -125,7 +129,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 
 		fnIndex := c.addConstant(compiledFn)
-		c.emit(code.OpClosure, fnIndex, 0)
+		c.emit(code.OpClosure, fnIndex, len(freeSymbols))
 	case *ast.LetStatement:
 		err := c.Compile(node.Value)
 		if err != nil {
@@ -240,7 +244,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 
-		c.Compile(node.Index)
+		err = c.Compile(node.Index)
 		if err != nil {
 			return err
 		}
@@ -431,6 +435,8 @@ func (c *Compiler) currentInstructions() code.Instructions {
 
 func (c *Compiler) loadSymbol(s Symbol) {
 	switch s.Scope {
+	case FreeScope:
+		c.emit(code.OpGetFree, s.Index)
 	case GlobalScope:
 		c.emit(code.OpGetGlobal, s.Index)
 	case LocalScope:
