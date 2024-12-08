@@ -98,7 +98,7 @@ func (vm *VM) Run() error {
 		case code.OpClosure:
 			constIndex := code.ReadUint16(ins[ip+1:])
 			numFree := code.ReadUint8(ins[ip+3:])
-			vm.currentFrame().ip += 1
+			vm.currentFrame().ip += 3
 
 			err := vm.pushClosure(int(constIndex), int(numFree))
 			if err != nil {
