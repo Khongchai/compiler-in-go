@@ -34,6 +34,8 @@ const (
 
 type CompiledFunction struct {
 	Instructions code.Instructions
+	// How many local bindings this function is going to create.
+	NumLocals int
 }
 
 func (cf *CompiledFunction) Type() ObjectType { return COMPILED_FUNCTION_OBJ }
